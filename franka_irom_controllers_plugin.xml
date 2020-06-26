@@ -1,0 +1,17 @@
+<library path="lib/libfranka_irom_controllers">
+  <class name="franka_irom_controllers/CartesianPoseTeleopController" type="franka_irom_controllers::CartesianPoseTeleopController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      Teleop cartesian pose controller.
+    </description>
+  </class>
+  <class name="franka_irom_controllers/CartesianVelocityTeleopController" type="franka_irom_controllers::CartesianVelocityTeleopController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      Teleop cartesian vel controller.
+    </description>
+  </class>
+  <class name="franka_irom_controllers/CartesianVelocityNodeController" type="franka_irom_controllers::CartesianVelocityNodeController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      A Cartesian velocity controller that takes commands from a ROS subscriber.
+    </description>
+  </class>
+</library>

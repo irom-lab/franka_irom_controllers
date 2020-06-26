@@ -77,29 +77,10 @@ bool JointVelocityNodeController::init(
   node_handle.param<bool>("stop_on_contact", stop_on_contact, true);
 
   // Subscribe to cmd topic
-  velocity_command_subscriber = node_handle.subscribe("joint_velocity",
+  velocity_command_subscriber = node_handle.subscribe("/joint_velocity_node_controller/joint_velocity",
                                                        10,
                 &JointVelocityNodeController::joint_velocity_callback,
                                                        this);
-
-//   try {
-//     auto state_handle = state_interface->getHandle("panda_robot");
-
-//     std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-//     for (size_t i = 0; i < q_start.size(); i++) {
-//       if (std::abs(state_handle.getRobotState().q_d[i] - q_start[i]) > 0.1) {
-//         ROS_ERROR_STREAM(
-//             "JointVelocityNodeController: Robot is not in the expected starting position for "
-//             "running this example. Run `roslaunch franka_example_controllers move_to_start.launch "
-//             "robot_ip:=<robot-ip> load_gripper:=<has-attached-gripper>` first.");
-//         return false;
-//       }
-//     }
-//   } catch (const hardware_interface::HardwareInterfaceException& e) {
-//     ROS_ERROR_STREAM(
-//         "JointVelocityNodeController: Exception getting state handle: " << e.what());
-//     return false;
-//   }
 
   return true;
 }
@@ -111,7 +92,6 @@ void JointVelocityNodeController::starting(const ros::Time& /* time */) {
 
 
 void JointVelocityNodeController::joint_velocity_callback(const std_msgs::Float64MultiArray::ConstPtr& msg) {
-// void JointVelocityNodeController::joint_velocity_callback(const std::array<double, 7>& msg) {
   // Callback for ROS message
   for (size_t i = 0; i < 7; ++i) {
 		velocity_command[i] = msg->data[i];
@@ -156,19 +136,6 @@ void JointVelocityNodeController::update(const ros::Time& /* time */,
   for (size_t i = 0; i < 7; ++i) {
     velocity_joint_handles_[i].setCommand(velocity_command[i]);
   }
-  // velocity_joint_handles_->setCommand(velocity_command);
-
-//   ros::Duration time_max(8.0);
-//   double omega_max = 0.1;
-//   double cycle = std::floor(
-//       std::pow(-1.0, (elapsed_time_.toSec() - std::fmod(elapsed_time_.toSec(), time_max.toSec())) /
-//                          time_max.toSec()));
-//   double omega = cycle * omega_max / 2.0 *
-//                  (1.0 - std::cos(2.0 * M_PI / time_max.toSec() * elapsed_time_.toSec()));
-
-//   for (auto joint_handle : velocity_joint_handles_) {
-//     joint_handle.setCommand(omega);
-//   }
 }
 
 void JointVelocityNodeController::stopping(const ros::Time& /*time*/) {

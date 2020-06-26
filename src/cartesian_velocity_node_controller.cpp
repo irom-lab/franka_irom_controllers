@@ -88,7 +88,7 @@ bool CartesianVelocityNodeController::init(hardware_interface::RobotHW* robot_ha
 
   velocity_command_subscriber = node_handle.subscribe("cartesian_velocity",
                                                        10,
-                                                       &CartesianVelocityNodeController::cartesian_velocity_callback,
+                &CartesianVelocityNodeController::cartesian_velocity_callback,
                                                        this);
 
   return true;

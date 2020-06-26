@@ -14,4 +14,9 @@
       A Cartesian velocity controller that takes commands from a ROS subscriber.
     </description>
   </class>
+  <class name="franka_irom_controllers/JointVelocityNodeController" type="franka_irom_controllers::JointVelocityNodeController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      A joint velocity controller that takes commands from a ROS subscriber.
+    </description>
+  </class>
 </library>

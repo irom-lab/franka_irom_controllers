@@ -3,6 +3,7 @@
 #pragma once
 
 #include <string>
+#include <array>
 #include <vector>
 
 #include <controller_interface/multi_interface_controller.h>
@@ -13,6 +14,9 @@
 #include <ros/time.h>
 #include "ros/ros.h"
 #include <franka/rate_limiting.h>
+
+#include <std_msgs/Float64MultiArray.h>
+
 
 namespace franka_irom_controllers {
 
@@ -25,13 +29,17 @@ class JointVelocityNodeController : public controller_interface::MultiInterfaceC
 		void starting(const ros::Time&) override;
 		void stopping(const ros::Time&) override;
 
+		// void joint_velocity_callback(const std::array<double, 7>& msg);
+		void joint_velocity_callback(const std_msgs::Float64MultiArray::ConstPtr& msg);
+
 	private:
 		hardware_interface::VelocityJointInterface* velocity_joint_interface_;
 		std::vector<hardware_interface::JointHandle> velocity_joint_handles_;
-		ros::Duration elapsed_time_;
+		std::unique_ptr<franka_hw::FrankaStateHandle> state_handle_;
 
 		std::array<double, 7> velocity_command;
 		std::array<double, 7> last_sent_velocity;
+		std::array<double, 7> last_sent_acceleration;
 		ros::Duration time_since_last_command;
 		ros::Subscriber velocity_command_subscriber;
 

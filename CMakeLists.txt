@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(catkin REQUIRED COMPONENTS
   controller_interface
   dynamic_reconfigure
-  franka_hw
   geometry_msgs
   std_msgs
   hardware_interface
@@ -19,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   franka_control
+  franka_hw
   franka_description
   franka_msgs
   franka_gripper
@@ -63,6 +63,7 @@ add_library(franka_irom_controllers
   src/cartesian_pose_teleop_controller.cpp
   src/cartesian_velocity_teleop_controller.cpp
   src/cartesian_velocity_node_controller.cpp
+  src/joint_velocity_node_controller.cpp
 )
 
 add_dependencies(franka_irom_controllers
@@ -102,10 +103,10 @@ install(DIRECTORY config
 install(FILES franka_irom_controllers_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-catkin_install_python(
-  PROGRAMS scripts/move_to_start.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# catkin_install_python(
+  # PROGRAMS scripts/move_to_start.py
+  # DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 ## Tools
 include(${CMAKE_CURRENT_LIST_DIR}/../cmake/ClangTools.cmake OPTIONAL

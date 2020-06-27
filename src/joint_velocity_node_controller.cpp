@@ -11,7 +11,6 @@
 #include <ros/ros.h>
 
 
-
 namespace franka_irom_controllers {
 
 bool JointVelocityNodeController::init(
@@ -59,19 +58,25 @@ bool JointVelocityNodeController::init(
 
   node_handle.param<double>("max_duration_between_commands", max_duration_between_commands, 0.01);
 
-  // // Rate Limiting
-  // if(!node_handle.getParam("rate_limiting/kMaxJointVelocity", max_velocity)) {
-  //   ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/kMaxJointVelocity");
-  //   return false;
-  // }
-  // if(!node_handle.getParam("rate_limiting/kMaxJointAcceleration", max_acceleration)) {
-  //   ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/kMaxJointAcceleration");
-  //   return false;
-  // }
-  // if(!node_handle.getParam("rate_limiting/kMaxJointJerk", max_jerk)) {
-  //   ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/kMaxJointJerk");
-  //   return false;
-  // }
+  // Rate Limiting
+  std::vector<double> limit;
+  if(!node_handle.getParam("rate_limiting/velocity", limit)) {
+    ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/velocity");
+    return false;
+  }
+  std::copy(limit.begin(), limit.end(), max_velocity.begin());
+
+  if(!node_handle.getParam("rate_limiting/acceleration", limit)) {
+    ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/acceleration");
+    return false;
+  }
+  std::copy(limit.begin(), limit.end(), max_acceleration.begin());
+
+  if(!node_handle.getParam("rate_limiting/jerk", limit)) {
+    ROS_ERROR("JointVelocityNodeController: Could not get parameter rate_limiting/jerk");
+    return false;
+  }
+  std::copy(limit.begin(), limit.end(), max_jerk.begin());
 
   // Stop at collision 
   node_handle.param<bool>("stop_on_contact", stop_on_contact, true);
@@ -86,6 +91,7 @@ bool JointVelocityNodeController::init(
 }
 
 void JointVelocityNodeController::starting(const ros::Time& /* time */) {
+  time_since_last_command = ros::Duration(0.0);
   velocity_command = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};  // 7 joints
   last_sent_velocity = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
 }
@@ -96,7 +102,6 @@ void JointVelocityNodeController::joint_velocity_callback(const std_msgs::Float6
   for (size_t i = 0; i < 7; ++i) {
 		velocity_command[i] = msg->data[i];
 	}
-  // velocity_command = msg;
   time_since_last_command = ros::Duration(0.0);
 }
 
@@ -123,18 +128,18 @@ void JointVelocityNodeController::update(const ros::Time& /* time */,
   }
 
   // Use rate limiter
-  // last_sent_velocity = franka::limitRate(
-  //   max_velocity,
-  //   max_acceleration,
-  //   max_jerk,
-  //   velocity_command,
-  //   state.O_dP_EE_c,  // TODO
-  //   state.O_ddP_EE_c
-  // );
+  last_sent_velocity = franka::limitRate(
+    max_velocity,
+    max_acceleration,
+    max_jerk,
+    velocity_command,
+    state.dq_d,
+    state.ddq_d
+  );
 
   // Send joint velocity cmd to arm
   for (size_t i = 0; i < 7; ++i) {
-    velocity_joint_handles_[i].setCommand(velocity_command[i]);
+    velocity_joint_handles_[i].setCommand(last_sent_velocity[i]);
   }
 }
 

@@ -33,3 +33,28 @@ joint_velocity_node_controller:
         - panda_joint5
         - panda_joint6
         - panda_joint7
+    rate_limiting:
+        velocity:
+          - 2.1750
+          - 2.1750
+          - 2.1750
+          - 2.1750
+          - 2.6100
+          - 2.6100
+          - 2.6100
+        acceleration:
+          - 15
+          - 7.5
+          - 10
+          - 12.5
+          - 15
+          - 20
+          - 20
+        jerk:
+          - 7500
+          - 3750
+          - 5000
+          - 6250
+          - 7500
+          - 10000
+          - 10000

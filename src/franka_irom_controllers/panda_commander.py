@@ -21,7 +21,14 @@ class PandaCommander(object):
 		self.active_group = None
 		self.set_group(group_name)
 
-		# move_group = self.robot.get_group(group_name)
+		# Set workspace, not working?
+		move_group = self.robot.get_group(group_name)
+		move_group.set_workspace([0.0,-0.4,0.005,0.8,0.4,1.0])
+
+		# Limit joint velocities
+		move_group.set_max_velocity_scaling_factor(0.1)
+		
+		# End effector
 		# move_group.set_end_effector_link("panda_link8")
 		# self.print_debug_info()
 
@@ -160,6 +167,16 @@ class PandaCommander(object):
 		client = actionlib.SimpleActionClient('franka_gripper/homing', franka_gripper.msg.HomingAction)
 		client.wait_for_server()
 		client.send_goal(franka_gripper.msg.HomingGoal())
+		return client.wait_for_result()
+
+	def stop_gripper(self):
+		"""
+		Abort gripper action
+		:return: Bool success
+		"""
+		client = actionlib.SimpleActionClient('franka_gripper/stop', franka_gripper.msg.StopAction)
+		client.wait_for_server()
+		client.send_goal(franka_gripper.msg.StopGoal())
 		return client.wait_for_result()
 
 	def set_gripper(self, width, speed=0.1, wait=True):

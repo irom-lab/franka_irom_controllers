@@ -6,6 +6,7 @@ from moveit_commander.conversions import list_to_pose
 
 import franka_gripper.msg
 from franka_control.msg import ErrorRecoveryActionGoal
+from geometry_msgs.msg import PoseStamped
 
 
 class PandaCommander(object):
@@ -21,18 +22,55 @@ class PandaCommander(object):
 		self.active_group = None
 		self.set_group(group_name)
 
-		# Set workspace, not working?
-		move_group = self.robot.get_group(group_name)
-		move_group.set_workspace([0.0,-0.4,0.005,0.8,0.4,1.0])
+		# Set workspace, did not work
+		# move_group = self.robot.get_group(group_name)
+		# move_group.set_workspace([0.0,-0.4,0.005,0.8,0.4,1.0])
 
-		# Limit joint velocities
-		move_group.set_max_velocity_scaling_factor(0.1)
+		# Limit joint velocities, did not work, set max vel in joint_limits_slow.yaml instead
+		# move_group.set_max_velocity_scaling_factor(0.1)
 		
 		# End effector
 		# move_group.set_end_effector_link("panda_link8")
 		# self.print_debug_info()
 
+
+		# Recovery
 		self.reset_publisher = rospy.Publisher('/franka_control/error_recovery/goal', ErrorRecoveryActionGoal, queue_size=1)
+
+
+	def add_table(self):
+		table_pose = PoseStamped()
+		table_pose.header.frame_id = "panda_link0"
+		table_pose.pose.orientation.w = 1.0
+		table_pose.pose.position.x = 0.50
+		table_pose.pose.position.x = 0.00
+		table_pose.pose.position.z = -0.01
+		self.scene.add_box("table", table_pose, size=(2.0, 1.0, 0.02))
+		self.wait_for_state_update(box_name='table', box_is_known=True, timeout=1.0)
+
+
+	def wait_for_state_update(self, box_name, box_is_known=False, box_is_attached=False, timeout=4):
+		start = rospy.get_time()
+		seconds = rospy.get_time()
+		while (seconds - start < timeout) and not rospy.is_shutdown():
+			# Test if the box is in attached objects
+			attached_objects = self.scene.get_attached_objects([box_name])
+			is_attached = len(attached_objects.keys()) > 0
+
+			# Test if the box is in the scene.
+			# Note that attaching the box will remove it from known_objects
+			is_known = box_name in self.scene.get_known_object_names()
+
+			# Test if we are in the expected state
+			if (box_is_attached == is_attached) and (box_is_known == is_known):
+				return True
+
+			# Sleep so that we give other threads time on the processor
+			rospy.sleep(0.1)
+			seconds = rospy.get_time()
+
+		return False
+
 
 	def print_debug_info(self):
 		if self.active_group:

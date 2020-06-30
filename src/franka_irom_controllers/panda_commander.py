@@ -268,4 +268,4 @@ class PandaCommander(object):
 		Call the error reset action server.
 		"""
 		self.reset_publisher.publish(ErrorRecoveryActionGoal())
-		rospy.sleep(3.0)
+		rospy.sleep(1.0)

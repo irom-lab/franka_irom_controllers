@@ -82,11 +82,8 @@ bool JointVelocityNodeController::init(
   node_handle.param<bool>("stop_on_contact", stop_on_contact, true);
 
   // Subscribe to cmd topic
-  velocity_command_subscriber = node_handle.subscribe("/joint_velocity_node_controller/joint_velocity",
-                                                       10,
-                &JointVelocityNodeController::joint_velocity_callback,
-                                                       this);
-
+  velocity_command_subscriber = node_handle.subscribe("/joint_velocity_node_controller/joint_velocity", 10,
+                &JointVelocityNodeController::joint_velocity_callback, this);
   return true;
 }
 
@@ -112,7 +109,8 @@ void JointVelocityNodeController::update(const ros::Time& /* time */,
 
   // If no message received in set time,
   if(time_since_last_command.toSec() > max_duration_between_commands) {
-    velocity_command = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
+    // velocity_command = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
+    velocity_command = last_sent_velocity;
   }
 
   auto state = state_handle_->getRobotState();

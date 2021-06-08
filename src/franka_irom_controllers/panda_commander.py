@@ -33,7 +33,6 @@ class PandaCommander(object):
 		# move_group.set_end_effector_link("panda_link8")
 		# self.print_debug_info()
 
-
 		# Recovery
 		self.reset_publisher = rospy.Publisher('/franka_control/error_recovery/goal', ErrorRecoveryActionGoal, queue_size=1)
 
@@ -44,7 +43,7 @@ class PandaCommander(object):
 		table_pose.pose.orientation.w = 1.0
 		table_pose.pose.position.x = 0.50
 		table_pose.pose.position.x = 0.00
-		table_pose.pose.position.z = -0.01
+		table_pose.pose.position.z = -0.10
 		self.scene.add_box("table", table_pose, size=(2.0, 1.0, 0.02))
 		self.wait_for_state_update(box_name='table', box_is_known=True, timeout=1.0)
 
@@ -233,7 +232,7 @@ class PandaCommander(object):
 		else:
 			return True
 
-	def grasp(self, width=0, e_inner=0.1, e_outer=0.1, speed=0.1, force=1):
+	def grasp(self, width=0, e_inner=0.1, e_outer=0.1, speed=0.2, force=5):
 		"""
 		Wrapper around the franka_gripper/grasp action.
 		http://docs.ros.org/kinetic/api/franka_gripper/html/action/Grasp.html
